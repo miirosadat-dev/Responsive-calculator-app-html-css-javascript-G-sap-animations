@@ -5,9 +5,10 @@
 /* ============================================================================
    TABLET STYLES (768px and up)
    ============================================================================ */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .calculator-container {
-    max-width: 520px;
+    max-width: 100%;
+    width: 90%;
   }
 
   .current-value {

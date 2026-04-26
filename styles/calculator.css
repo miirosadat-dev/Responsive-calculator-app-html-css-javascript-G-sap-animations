@@ -6,8 +6,8 @@
    MAIN CONTAINER
    ============================================================================ */
 .calculator-container {
-  width: 100%;
-  max-width: 480px;
+  width: 20%;
+  max-width: 100%;
   background: linear-gradient(
     135deg,
     var(--bg-light) 0%,
