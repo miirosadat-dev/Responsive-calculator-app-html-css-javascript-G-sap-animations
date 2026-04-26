@@ -1,10 +1,13 @@
 /**
  * ============================================================================
- * CALCULATOR - SINGLE UNIFIED JS FILE
+ * RESPONSIVE CALCULATOR - MAIN APPLICATION
  * ============================================================================
- * All functionality: Calculator logic + GSAP animations + DOM handling
- * Focused on performance and simplicity
+ * Two-line display showing expression and current input
  */
+
+// ============================================================================
+// CALCULATOR LOGIC
+// ============================================================================
 
 class Calculator {
     constructor() {
@@ -12,151 +15,257 @@ class Calculator {
     }
 
     reset() {
-        this.previousValue = '';
-        this.currentValue = '0';
+        this.previousValue = null;
+        this.currentValue = '';
         this.operation = null;
-        this.newNumber = true;
+        this.shouldResetDisplay = false;
     }
 
-    appendNumber(num) {
-        if (this.newNumber) {
-            this.currentValue = num;
-            this.newNumber = false;
-        } else {
-            if (num === '.' && this.currentValue.includes('.')) return;
-            this.currentValue += num;
+    appendNumber(number) {
+        if (number === '.' && this.currentValue.includes('.')) return;
+        if (number === '.' && !this.currentValue) {
+            this.currentValue = '0.';
+            this.shouldResetDisplay = false;
+            return;
         }
+        if (this.currentValue === '0' && number !== '.') {
+            this.currentValue = number;
+        } else {
+            this.currentValue += number;
+        }
+        this.shouldResetDisplay = false;
     }
 
     delete() {
-        if (this.currentValue.length > 1) {
-            this.currentValue = this.currentValue.slice(0, -1);
+        if (this.shouldResetDisplay) {
+            this.shouldResetDisplay = false;
+            return;
+        }
+        this.currentValue = this.currentValue.toString().slice(0, -1) || '0';
+    }
+
+    setOperation(nextOperation) {
+        if (this.currentValue === '') {
+            if (this.previousValue !== null) {
+                this.operation = nextOperation;
+            }
+            return;
+        }
+        if (this.previousValue !== null && this.operation && !this.shouldResetDisplay) {
+            this.previousValue = this.calculate();
         } else {
-            this.currentValue = '0';
-            this.newNumber = true;
+            this.previousValue = parseFloat(this.currentValue);
         }
-    }
-
-    setOperation(op) {
-        if (this.operation !== null && !this.newNumber) {
-            this.calculate();
-        }
-        this.previousValue = this.currentValue;
-        this.operation = op;
-        this.newNumber = true;
-    }
-
-    calculate() {
-        if (this.operation === null || this.newNumber) return;
-
-        let result = 0;
-        const prev = parseFloat(this.previousValue);
-        const current = parseFloat(this.currentValue);
-
-        switch (this.operation) {
-            case '+':
-                result = prev + current;
-                break;
-            case '-':
-                result = prev - current;
-                break;
-            case '*':
-                result = prev * current;
-                break;
-            case '/':
-                if (current === 0) {
-                    this.currentValue = 'Error';
-                    return;
-                }
-                result = prev / current;
-                break;
-            case '%':
-                result = prev % current;
-                break;
-        }
-
-        this.currentValue = result.toString();
-        this.operation = null;
-        this.newNumber = true;
+        this.operation = nextOperation;
+        this.currentValue = '';
+        this.shouldResetDisplay = false;
     }
 
     percent() {
         const current = parseFloat(this.currentValue);
-        this.currentValue = (current / 100).toString();
+        if (isNaN(current)) return;
+        let result = current / 100;
+        if (this.previousValue !== null && this.operation) {
+            result = (this.previousValue * current) / 100;
+        }
+        this.currentValue = this.formatNumber(result).toString();
+        this.shouldResetDisplay = true;
     }
 
-    getDisplay() {
-        return this.currentValue.length > 10
-            ? parseFloat(this.currentValue).toExponential(5)
-            : this.currentValue;
+    calculate() {
+        if (this.operation == null || this.previousValue === null) {
+            return parseFloat(this.currentValue) || 0;
+        }
+        const current = parseFloat(this.currentValue);
+        const previous = this.previousValue;
+        let result = 0;
+
+        switch (this.operation) {
+            case '+':
+                result = previous + current;
+                break;
+            case '-':
+                result = previous - current;
+                break;
+            case '*':
+                result = previous * current;
+                break;
+            case '/':
+                if (current === 0) {
+                    console.error('Cannot divide by zero');
+                    return null;
+                }
+                result = previous / current;
+                break;
+            case '%':
+                result = previous % current;
+                break;
+            default:
+                return current;
+        }
+        return this.formatNumber(result);
+    }
+
+    equals() {
+        const result = this.calculate();
+        if (result === null) return null;
+        this.currentValue = result.toString();
+        this.previousValue = null;
+        this.operation = null;
+        this.shouldResetDisplay = true;
+        return this.currentValue;
+    }
+
+    formatNumber(number) {
+        return Math.round(number * 10000000000) / 10000000000;
+    }
+
+    getFormattedDisplay(value) {
+        if (value === '' || value === null) return '0';
+        const [integerPart, decimalPart] = value.toString().split('.');
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return decimalPart !== undefined ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+    }
+
+    // Get the expression line (previous value + operation)
+    getExpressionDisplay() {
+        if (this.previousValue === null) return '';
+        const formatted = this.getFormattedDisplay(this.previousValue);
+        if (this.operation) {
+            return `${formatted} ${this.operation}`;
+        }
+        return formatted;
+    }
+
+    // Get the current input line
+    getCurrentDisplay() {
+        return this.getFormattedDisplay(this.currentValue || '0');
     }
 }
 
 // ============================================================================
-// INITIALIZE APP
+// APPLICATION INITIALIZATION
 // ============================================================================
 
-const calc = new Calculator();
-const display = document.querySelector('.current-value');
-const buttons = document.querySelectorAll('.btn');
+const calculator = new Calculator();
+let lastOperatorButton = null;
 
-function updateDisplay() {
-    display.textContent = calc.getDisplay();
-    gsap.to(display, { duration: 0.15, scale: 1.05, yoyo: true, repeat: 1 });
-}
+function init() {
+    console.log('✅ Calculator initialized');
+    
+    const previousDisplay = document.querySelector('.previous-value');
+    const currentDisplay = document.querySelector('.current-value');
+    const numberButtons = document.querySelectorAll('[data-number]');
+    const operatorButtons = document.querySelectorAll('[data-operator]');
+    const functionButtons = document.querySelectorAll('[data-action]');
 
-buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        gsap.to(btn, { duration: 0.1, scale: 0.9, yoyo: true, repeat: 1 });
+    function updateDisplay() {
+        previousDisplay.textContent = calculator.getExpressionDisplay();
+        currentDisplay.textContent = calculator.getCurrentDisplay();
+    }
 
-        const number = btn.getAttribute('data-number');
-        const operator = btn.getAttribute('data-operator');
-        const action = btn.getAttribute('data-action');
-
-        if (number) {
-            calc.appendNumber(number);
+    // Number buttons
+    numberButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const number = this.getAttribute('data-number');
+            calculator.appendNumber(number);
             updateDisplay();
-        } else if (operator) {
+        });
+    });
+
+    // Operator buttons
+    operatorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const operator = this.getAttribute('data-operator');
+
+            if (lastOperatorButton && lastOperatorButton !== button) {
+                lastOperatorButton.classList.remove('active');
+            }
+
             if (operator === '%') {
-                calc.percent();
+                calculator.percent();
             } else {
-                calc.setOperation(operator);
+                calculator.setOperation(operator);
+                this.classList.add('active');
+                lastOperatorButton = this;
             }
             updateDisplay();
-        } else if (action) {
+        });
+    });
+
+    // Function buttons
+    functionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+
             if (action === 'clear') {
-                calc.reset();
+                calculator.reset();
+                if (lastOperatorButton) {
+                    lastOperatorButton.classList.remove('active');
+                    lastOperatorButton = null;
+                }
             } else if (action === 'delete') {
-                calc.delete();
+                calculator.delete();
             } else if (action === 'equals') {
-                calc.calculate();
+                calculator.equals();
+                if (lastOperatorButton) {
+                    lastOperatorButton.classList.remove('active');
+                    lastOperatorButton = null;
+                }
+            }
+            updateDisplay();
+        });
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', function(e) {
+        if (/^[0-9.]$/.test(e.key)) {
+            e.preventDefault();
+            const button = document.querySelector(`[data-number="${e.key}"]`);
+            if (button) {
+                calculator.appendNumber(e.key);
+                updateDisplay();
+            }
+        }
+
+        if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+            e.preventDefault();
+            const button = document.querySelector(`[data-operator="${e.key}"]`);
+            if (button) {
+                calculator.setOperation(e.key);
+                updateDisplay();
+            }
+        }
+
+        if (e.key === 'Enter' || e.key === '=') {
+            e.preventDefault();
+            calculator.equals();
+            updateDisplay();
+        }
+
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            calculator.delete();
+            updateDisplay();
+        }
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            calculator.reset();
+            if (lastOperatorButton) {
+                lastOperatorButton.classList.remove('active');
+                lastOperatorButton = null;
             }
             updateDisplay();
         }
     });
-});
 
-// Keyboard support
-document.addEventListener('keydown', (e) => {
-    if (/^[0-9.]$/.test(e.key)) {
-        calc.appendNumber(e.key);
-        updateDisplay();
-    } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
-        calc.setOperation(e.key);
-        updateDisplay();
-    } else if (e.key === 'Enter' || e.key === '=') {
-        e.preventDefault();
-        calc.calculate();
-        updateDisplay();
-    } else if (e.key === 'Backspace') {
-        calc.delete();
-        updateDisplay();
-    } else if (e.key === 'Escape') {
-        calc.reset();
-        updateDisplay();
-    }
-});
+    updateDisplay();
+}
 
-// Initial display
-updateDisplay();
-console.log('✅ Calculator loaded');
+// Start when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
