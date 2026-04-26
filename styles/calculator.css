@@ -1,0 +1,282 @@
+/* ============================================================================
+   CALCULATOR UI STYLES
+   ============================================================================ */
+
+/* ============================================================================
+   MAIN CONTAINER
+   ============================================================================ */
+.calculator-container {
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(
+    135deg,
+    var(--bg-light) 0%,
+    var(--bg-darker) 100%
+  );
+  border-radius: var(--radius-xl);
+  box-shadow:
+    var(--shadow-xl),
+    0 0 40px rgba(99, 102, 241, 0.2);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   DISPLAY SECTION
+   ============================================================================ */
+.calculator-display {
+  background: linear-gradient(
+    135deg,
+    var(--bg-darker) 0%,
+    var(--bg-light) 100%
+  );
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.display-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+}
+
+/* Previous Value Display */
+.previous-value {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-normal);
+  min-height: 1.5rem;
+  text-align: right;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Current Value Display */
+.current-value {
+  font-size: var(--font-size-3xl);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  min-height: 2.5rem;
+  text-align: right;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+  letter-spacing: -0.05em;
+}
+
+/* ============================================================================
+   BUTTONS GRID SECTION
+   ============================================================================ */
+.calculator-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: var(--bg-dark);
+}
+
+/* ============================================================================
+   BASE BUTTON STYLES
+   ============================================================================ */
+.btn {
+  padding: var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================================
+   BUTTON TYPES
+   ============================================================================ */
+
+/* Number Buttons */
+.btn-number {
+  background: linear-gradient(135deg, var(--bg-light) 0%, #1e293b 100%);
+  color: var(--text-primary);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+}
+
+.btn-number:hover:not(:active) {
+  background: linear-gradient(135deg, #334155 0%, var(--bg-light) 100%);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.btn-number:active {
+  transform: translateY(0);
+  box-shadow: inset var(--shadow-md);
+}
+
+/* Operator Buttons */
+.btn-operator {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--primary-dark) 100%
+  );
+  color: white;
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--primary-light);
+}
+
+.btn-operator:hover:not(:active) {
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    var(--primary-color) 100%
+  );
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+.btn-operator:active {
+  transform: translateY(0);
+  box-shadow: inset var(--shadow-md);
+}
+
+/* Function Buttons (Clear, Delete) */
+.btn-function {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white;
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid #f87171;
+  font-size: var(--font-size-sm);
+}
+
+.btn-function:hover:not(:active) {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.btn-function:active {
+  transform: translateY(0);
+  box-shadow: inset var(--shadow-md);
+}
+
+/* Equals Button */
+.btn-equals {
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color) 0%,
+    var(--secondary-dark) 100%
+  );
+  color: white;
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid #f472b6;
+  grid-column: 3 / 5;
+}
+
+.btn-equals:hover:not(:active) {
+  background: linear-gradient(135deg, #f472b6 0%, var(--secondary-color) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 20px rgba(236, 72, 153, 0.5);
+}
+
+.btn-equals:active {
+  transform: translateY(0);
+  box-shadow: inset var(--shadow-md);
+}
+
+/* Zero Button (Spans 2 columns) */
+.btn-zero {
+  grid-column: 1 / 3;
+}
+
+/* ============================================================================
+   BUTTON STATES & INTERACTIONS
+   ============================================================================ */
+
+/* Active State (When digit pressed) */
+.btn.active {
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    var(--primary-color) 100%
+  );
+  color: white;
+  box-shadow:
+    var(--shadow-lg),
+    0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+/* Disabled State */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Focus State (Keyboard Navigation) */
+.btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+/* ============================================================================
+   ANIMATION STATES
+   ============================================================================ */
+
+/* Entrance Animation */
+.btn.entering {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Ripple Effect Container */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+/* Error/Shake Animation */
+.error-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Glow Animation */
+.glow-effect {
+  animation: glow 1s ease-in-out;
+}
